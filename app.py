@@ -25,10 +25,10 @@ def submit():
     if request.method == 'POST':
         if request.form.get('Save') == 'Save':
             network_set(request.form,config["if_name"])
-            time.sleep(1)
             net_info = get_network_information(config["if_name"])
-            dns = get_dns(config["if_name"])
-            dhcp = get_dhcp_status()
+            time.sleep(1)
+            dns = request.form["DNS"]
+            dhcp = 1 if request.form["dhcp"] =="1" else 0
             dns_status = get_dns_status(config["if_name"])
             return render_template("index.html", net_info=net_info, dns=dns, dhcp=dhcp, dns_status=dns_status)
 
@@ -36,8 +36,7 @@ def submit():
             net_info = get_network_information(config["if_name"])
             dns = get_dns(config["if_name"])
             dhcp = get_dhcp_status()
-            dns_status = get_dns_status(config["if_name"])
-            print('dns_status',dns_status)   
+            dns_status = get_dns_status(config["if_name"])  
             return render_template("index.html", net_info=net_info, dns=dns, dhcp=dhcp, dns_status=dns_status)
 
         elif request.form.get('network_restart') == 'network_restart':
