@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect,url_for
 import netifaces
 import os
 import subprocess
@@ -20,14 +20,16 @@ def index():
     return render_template('index.html',dhcp=1)
 
 
-@app.route('/submit', methods=['POST','GET'])
-def submit():
+@app.route('/net_config', methods=['POST','GET'])
+def net_config():
     if request.method == 'POST':
-        if request.form.get('Save') == 'Save':
+        if request.form.get('RTSP Link Config') == 'RTSP Link Config':
+            return redirect(url_for("rtsp"))
+        elif request.form.get('Save') == 'Save':
             network_set(request.form,config["if_name"])
             net_info = get_network_information(config["if_name"])
             time.sleep(1)
-            dns = request.form["DNS"]
+            dns = request.form["DNS"].replace(" ","\xa0")
             dhcp = 1 if request.form["dhcp"] =="1" else 0
             dns_status = get_dns_status(config["if_name"])
             return render_template("index.html", net_info=net_info, dns=dns, dhcp=dhcp, dns_status=dns_status)
@@ -39,19 +41,42 @@ def submit():
             dns_status = get_dns_status(config["if_name"])  
             return render_template("index.html", net_info=net_info, dns=dns, dhcp=dhcp, dns_status=dns_status)
 
-        elif request.form.get('network_restart') == 'network_restart':
-            f = os.popen('sudo netplan apply && echo '+ config["sudo_pass"])
+        elif request.form.get('Network_restart') == 'Network_restart':
+            #f = os.popen('sudo netplan apply && echo '+ config["sudo_pass"])
+            command = 'sudo netplan apply'
+            f = os.popen(command)
             net_info = get_network_information(config["if_name"])
             dns = get_dns(config["if_name"])
             dhcp = get_dhcp_status()
             dns_status = get_dns_status(config["if_name"])
             return render_template("index.html",net_info=net_info, dns=dns, dhcp=dhcp, dns_status=dns_status) 
         elif request.form.get('delete') == 'delete':
-            print("Delete click")
             dhcp = get_dhcp_status()
             return render_template("index.html", dhcp=dhcp)
     else:
-    	return render_template("index.html",net_info=net_info, dns=dns, dhcp=dhcp) 
+    	return render_template("index.html",dhcp=1) 
+
+@app.route('/rtsp', methods=['POST','GET'])
+def rtsp():
+     if request.method == 'POST':
+        if request.form.get('Network Config') == 'Network Config':
+             return redirect(url_for('net_config'))
+        elif request.form.get('Save RTSP Link') == 'Save RTSP Link':
+             rtsp_data = {}
+             rtsp_data["rtsp_link"] =  request.form["rtsp_link"]
+             with open("rtsp.yaml", "w") as file:
+                 try:
+                        documents = yaml.dump(rtsp_data, file, sort_keys=False )
+                        return render_template("rtsp.html",message =" RTSP Link Set Successsfully !!!    ")
+                        file.close()
+                 except:
+                         return render_template("rtsp.html",message ="  RTSP Link Set Fail !!!    ")
+        elif request.form.get('Cancel') == 'Cancel':
+                 return render_template("rtsp.html")
+             
+     else:
+        return render_template("rtsp.html")
+    
 
 def get_data_from_yaml():
     with open(config["netplan_file_config_path"]) as file:
@@ -90,7 +115,8 @@ def network_set(info, if_name):
     with open(config["netplan_file_config_path"], "w") as file:
         documents = yaml.dump(data, file, sort_keys=False )
         file.close()
-    command = 'sudo netplan apply && echo ' + config["sudo_pass"]
+    #command = 'sudo netplan apply && echo ' + config["sudo_pass"]
+    command = 'sudo netplan apply'
     f = os.popen(command)
 
 def get_dns_status(if_name):
@@ -116,8 +142,6 @@ def get_dns(if_name):
     
 def get_network_information(if_name):
     PROTO = netifaces.AF_INET   # We want only IPv4, for now at least
-
-    print(netifaces.interfaces())
     # Get addresses for each interface
     try:
         if_addrs = netifaces.ifaddresses(if_name)
@@ -137,7 +161,6 @@ def get_dhcp_status():
     else:
         return 0
     
-
 
 if __name__ == '__main__':
     app.run()

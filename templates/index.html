@@ -4,15 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="stylesheet" href="../static/style.css" />
+    <link type="text/css" rel="stylesheet" href="../static/style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
     <title>IP Configuration</title>
   </head>
+  
+    
+    </style>
   <body>
     <div class="container">
-      <img src="../static/arion.png" alt="Lexus" class="logo" />
+      <img src="../static/cdi.jpg" alt="cdi" class="logo" />
 
-      <form action="/submit" method="POST">
+      <form action="/net_config" method="POST">
         <div class="form-group">
        {% if dhcp==1 %}
           <input type="radio" name="dhcp" value="1" checked/> Automatic (DHCP)
@@ -93,7 +97,12 @@
           <tr>
             <td> <input type="submit" name="Reload" value="Reload" class="btn"/></td>
             <td> <input type="submit" name="Save" value="Save" class="btn" /></td>
-            <td> <input type="submit" name="network_restart" value="network_restart" class="btn" /></td>
+            <td> <input type="submit" name="Network_restart" value="Network_restart" class="btn" /></td>
+        </tr>
+        </table>
+        <table>
+          <tr>
+              <td> <input type="submit" name="RTSP Link Config" value="RTSP Link Config" class="btn"/></td>
         </tr>
         </table>
       </form>
