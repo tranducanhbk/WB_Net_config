@@ -30,4 +30,8 @@ sudo chmod 777 /etc/netplan/01-network-manager-all.yaml
 
 Step 3: copy content of 01-network-manager-all.yaml in this repo and replace content in /etc/netplan/01-network-manager-all.yamlfile
 
-Step 4: Run python app.py than config the IP on the WB
+Step 4: config run netplan apply with nonpassword by:
+
+sudo visudo then add <username> ALL = NOPASSWD: /usr/sbin netplan apply (with username is user)  at the bottom of file
+
+Step 5: Run python app.py than config the IP on the WB
